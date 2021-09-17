@@ -1,14 +1,32 @@
-import { StatusBar } from "expo-status-bar";
 import React from "react";
+import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "styled-components/native";
+import AppLoading from "expo-app-loading";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
+
 import Dashboard from "./src/pages/App/Dashboard";
-import { colors } from "./src/theme";
+import { theme } from "./src/theme";
 
 export default function App() {
-  return (
-    <ThemeProvider theme={colors}>
-      <StatusBar style="dark" backgroundColor={colors.white100} />
-      <Dashboard />
-    </ThemeProvider>
-  );
+  let [fontsLoaded] = useFonts({
+    Poppins_500Medium,
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  } else {
+    return (
+      <ThemeProvider theme={theme}>
+        <StatusBar style="light" backgroundColor={theme.colors.purple} />
+        <Dashboard />
+      </ThemeProvider>
+    );
+  }
 }
