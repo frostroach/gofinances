@@ -12,7 +12,7 @@ const SafeArea = styled(SafeAreaView).attrs({
 const KAV = styled.KeyboardAvoidingView.attrs({
   behavior: Platform.OS === "ios" ? "padding" : "height",
 })`
-  background-color: ${({ theme }) => theme.colors.white};
+  background-color: ${({ theme }) => theme.colors.gray};
   flex: 1;
 `;
 
