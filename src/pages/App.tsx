@@ -9,8 +9,9 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 
-import Dashboard from "./src/pages/App/Dashboard";
-import { theme } from "./src/theme";
+import Dashboard from "./App/Dashboard";
+import { theme } from "../theme";
+import Signup from "./App/Signup";
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -25,7 +26,8 @@ export default function App() {
     return (
       <ThemeProvider theme={theme}>
         <StatusBar style="light" backgroundColor={theme.colors.purple} />
-        <Dashboard />
+        {/* <Dashboard /> */}
+        <Signup />
       </ThemeProvider>
     );
   }
