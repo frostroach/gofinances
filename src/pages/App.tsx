@@ -2,6 +2,7 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "styled-components/native";
 import AppLoading from "expo-app-loading";
+import { NavigationContainer } from "@react-navigation/native";
 import {
   useFonts,
   Poppins_400Regular,
@@ -12,6 +13,7 @@ import {
 import Dashboard from "./App/Dashboard";
 import { theme } from "../theme";
 import Signup from "./App/Signup";
+import TabsRoutes from "../routes/tabs.routes";
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -24,11 +26,12 @@ export default function App() {
     return <AppLoading />;
   } else {
     return (
-      <ThemeProvider theme={theme}>
-        <StatusBar style="light" backgroundColor={theme.colors.purple} />
-        {/* <Dashboard /> */}
-        <Signup />
-      </ThemeProvider>
+      <NavigationContainer>
+        <ThemeProvider theme={theme}>
+          <StatusBar style="light" backgroundColor={theme.colors.purple} />
+          <TabsRoutes />
+        </ThemeProvider>
+      </NavigationContainer>
     );
   }
 }
