@@ -1,3 +1,7 @@
+import "react-native-gesture-handler";
+import "intl";
+import "intl/locale-data/jsonp/pt-BR";
+
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "styled-components/native";
@@ -10,9 +14,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 
-import Dashboard from "./App/Dashboard";
 import { theme } from "../theme";
-import Signup from "./App/Signup";
 import TabsRoutes from "../routes/tabs.routes";
 
 export default function App() {
