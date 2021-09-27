@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Keyboard } from "react-native";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useNavigation } from "@react-navigation/native";
 
 import { SignupStyled as Styled } from "./styles";
 import PageHeader from "../../../components/PageHeader";
@@ -12,6 +13,8 @@ import TypeButton from "./components/TypeButton";
 import { Category as CategoryModel } from "../../../models/category";
 import { categories } from "../../../config/categories";
 import InputForm from "./components/InputForm";
+import { Transaction } from "../../../models/transaction";
+import { saveTransactionData } from "../../../utils/store/asyncStorage";
 
 type FormData = {
   name: string;
@@ -28,6 +31,7 @@ const validationSchema = yup.object().shape({
 });
 
 const Signup: React.FC = () => {
+  const { navigate } = useNavigation();
   const [focusedOption, setFocusedOption] = useState<string>("");
   const [isShowingList, setIsShowingList] = useState(false);
   const [categorySelected, setCategorySelected] = useState<CategoryModel>(
@@ -37,6 +41,7 @@ const Signup: React.FC = () => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -48,6 +53,7 @@ const Signup: React.FC = () => {
       return;
     }
     setFocusedOption(type);
+    Keyboard.dismiss();
   };
 
   const handleShowList = (): void => {
@@ -55,11 +61,17 @@ const Signup: React.FC = () => {
   };
 
   const handleSelectedCategory = (data: CategoryModel): void => {
+    const categoryData = {
+      name: data.name,
+      key: data.key,
+      icon: data.icon,
+    };
     handleShowList();
-    setCategorySelected(data);
+    setCategorySelected(categoryData);
   };
 
-  const handleRegisterInfo = (form: FormData): void => {
+  const handleRegisterInfo = async (form: FormData): Promise<void> => {
+    Keyboard.dismiss();
     if (!focusedOption) {
       Alert.alert("Selecione o tipo da transação");
       return;
@@ -68,7 +80,7 @@ const Signup: React.FC = () => {
       Alert.alert("Selecione a categoria");
       return;
     }
-    const data = {
+    const data: Transaction = {
       id: String(new Date().getTime()),
       title: form.name,
       value: form.value,
@@ -77,7 +89,11 @@ const Signup: React.FC = () => {
       type: focusedOption,
     };
 
-    console.log("data", data);
+    await saveTransactionData(data);
+    setCategorySelected({} as CategoryModel);
+    setFocusedOption("");
+    reset();
+    navigate("Dashboard");
   };
 
   const renderCategoryList = ({

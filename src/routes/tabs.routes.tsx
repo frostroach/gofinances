@@ -36,6 +36,7 @@ const TabsRoutes: React.FC = () => {
               color={color}
             />
           ),
+          tabBarLabel: "Listagem",
         }}
       />
       <Tabs.Screen
@@ -45,6 +46,7 @@ const TabsRoutes: React.FC = () => {
           tabBarIcon: ({ size, color }) => (
             <MaterialIcons name="attach-money" size={size} color={color} />
           ),
+          tabBarLabel: "Cadastrar",
         }}
       />
       <Tabs.Screen
@@ -54,6 +56,7 @@ const TabsRoutes: React.FC = () => {
           tabBarIcon: ({ size, color }) => (
             <MaterialIcons name="pie-chart" size={size} color={color} />
           ),
+          tabBarLabel: "Resumo",
         }}
       />
     </Tabs.Navigator>
