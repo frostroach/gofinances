@@ -1,4 +1,5 @@
 export type Category = {
+  color?: string;
   name: "Casa" | "Fatura" | "Alimentação" | "Mercado" | "Outros" | "Vendas";
   key: "home" | "cardBill" | "feeding" | "market" | "other" | "sales";
   icon:
