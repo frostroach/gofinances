@@ -2,6 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import React, { useState, useCallback } from "react";
 import Loading from "../../../components/Loading";
 import WrapperKAV from "../../../components/WrapperKAV";
+import { useAuth } from "../../../hooks/auth";
 import { ListItemData } from "../../../models/dashboard";
 import { retrieveTransactionData } from "../../../utils/store/asyncStorage";
 import HeaderCard from "./components/HeaderCard";
@@ -21,6 +22,7 @@ type HighlightData = {
 };
 
 const Dashboard = () => {
+  const { user, signOutUser } = useAuth();
   const [itemList, setItemList] = useState<ListItemData[]>([]);
   const [highlightData, setHighlightData] = useState<HighlightData>(
     {} as HighlightData
@@ -52,68 +54,99 @@ const Dashboard = () => {
   const loadTransactions = useCallback(async () => {
     let incomesSum = 0;
     let outcomesSum = 0;
-    setLoading(true);
-    const response = await retrieveTransactionData();
-    const transactions = response ? response : [];
+    let lastOutcomeDate;
+    let lastIncomeDate;
+    let lastTotalDate;
+    let userTransactions;
+    try {
+      setLoading(true);
+      const response = await retrieveTransactionData();
 
-    const formattedTransactions = transactions.map((item: ListItemData) => {
-      const amount = Number(item.value).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+      const transactions = response ? response : [];
+      userTransactions = transactions.filter((item) => item.userId === user.id);
 
-      const date = Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(new Date(item.date));
+      const formattedTransactions = userTransactions.map(
+        (item: ListItemData) => {
+          const amount = Number(item.value).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
 
-      if (item.type === "income") {
-        incomesSum = incomesSum + Number(item.value);
-      } else {
-        outcomesSum += Number(item.value);
+          const date = Intl.DateTimeFormat("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }).format(new Date(item.date));
+
+          if (item.type === "income") {
+            incomesSum = incomesSum + Number(item.value);
+          } else {
+            outcomesSum += Number(item.value);
+          }
+
+          return {
+            id: item.id,
+            title: item.title,
+            userId: item.userId,
+            value: amount,
+            category: item.category,
+            date: date,
+            type: item.type,
+          };
+        }
+      );
+      const foundIncome = userTransactions.find(
+        (item) => item.type === "income"
+      );
+      const foundOutcome = userTransactions.find(
+        (item) => item.type === "outcome"
+      );
+      if (foundIncome) {
+        lastIncomeDate = getLastTransactionData(userTransactions, "income");
+      }
+      if (foundOutcome) {
+        lastOutcomeDate = getLastTransactionData(userTransactions, "outcome");
+        lastTotalDate = `de 01 a ${lastOutcomeDate}`;
       }
 
-      return {
-        id: item.id,
-        title: item.title,
-        value: amount,
-        category: item.category,
-        date: date,
-        type: item.type,
-      };
-    });
-
-    const lastOutcomeDate = getLastTransactionData(transactions, "outcome");
-    const lastIncomeDate = getLastTransactionData(transactions, "income");
-    const lastTotalDate = `de 01 a ${lastOutcomeDate}`;
-
-    setItemList(formattedTransactions);
-    setHighlightData({
-      incomes: {
-        value: incomesSum.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }),
-        date: lastIncomeDate,
-      },
-      outcomes: {
-        value: outcomesSum.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }),
-        date: lastOutcomeDate,
-      },
-      total: {
-        value: (incomesSum - outcomesSum).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }),
-        date: lastTotalDate,
-      },
-    });
-    setLoading(false);
+      setItemList(formattedTransactions);
+      setHighlightData({
+        incomes: {
+          value: incomesSum.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          date: lastIncomeDate,
+        },
+        outcomes: {
+          value: outcomesSum.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          date: lastOutcomeDate,
+        },
+        total: {
+          value: (incomesSum - outcomesSum).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          date: lastTotalDate,
+        },
+      });
+      setLoading(false);
+    } catch (error) {
+      console.log("error loading", error);
+      setLoading(false);
+    }
   }, []);
+
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await signOutUser();
+    } catch (err) {
+      console.log("err");
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -128,7 +161,7 @@ const Dashboard = () => {
       ) : (
         <Styled.Container>
           <Styled.UserHeaderContainer>
-            <UserHeader />
+            <UserHeader user={user} onPressLogout={handleLogout} />
           </Styled.UserHeaderContainer>
           <Styled.HeaderCardsContainer
             horizontal
@@ -140,20 +173,28 @@ const Dashboard = () => {
             <HeaderCard
               iconName="up"
               label="Entradas"
-              value={highlightData?.incomes?.value}
-              date={`Última entrada dia ${highlightData?.incomes?.date}`}
+              value={highlightData?.incomes?.value ?? 0}
+              date={
+                highlightData?.incomes?.date
+                  ? `Última entrada dia ${highlightData?.incomes?.date}`
+                  : "Nenhuma entrada para ser exibida"
+              }
             />
             <HeaderCard
               iconName="down"
               label="Saídas"
-              value={highlightData?.outcomes?.value}
-              date={`Última saída dia ${highlightData?.outcomes?.date}`}
+              value={highlightData?.outcomes?.value ?? 0}
+              date={
+                highlightData?.outcomes?.date
+                  ? `Última saída dia ${highlightData?.outcomes?.date}`
+                  : "Nenhuma saída para ser exibida"
+              }
             />
             <HeaderCard
               total
               iconName="total"
               label="Total"
-              value={highlightData.total.value}
+              value={highlightData.total?.value ?? 0}
               date={highlightData?.total?.date}
             />
           </Styled.HeaderCardsContainer>
