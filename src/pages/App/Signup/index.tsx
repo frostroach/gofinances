@@ -15,6 +15,7 @@ import { categories } from "../../../config/categories";
 import InputForm from "./components/InputForm";
 import { Transaction } from "../../../models/transaction";
 import { saveTransactionData } from "../../../utils/store/asyncStorage";
+import { useAuth } from "../../../hooks/auth";
 
 type FormData = {
   name: string;
@@ -31,6 +32,7 @@ const validationSchema = yup.object().shape({
 });
 
 const Signup: React.FC = () => {
+  const { user } = useAuth();
   const { navigate } = useNavigation();
   const [focusedOption, setFocusedOption] = useState<string>("");
   const [isShowingList, setIsShowingList] = useState(false);
@@ -82,6 +84,7 @@ const Signup: React.FC = () => {
     }
     const data: Transaction = {
       id: String(new Date().getTime()),
+      userId: user.id,
       title: form.name,
       value: form.value,
       category: categorySelected,
