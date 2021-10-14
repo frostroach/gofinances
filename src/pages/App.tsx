@@ -15,7 +15,8 @@ import {
 } from "@expo-google-fonts/poppins";
 
 import { theme } from "../theme";
-import TabsRoutes from "../routes/tabs.routes";
+import { AuthProvider, useAuth } from "../hooks/auth";
+import Routes from "../routes";
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -24,16 +25,18 @@ export default function App() {
     Poppins_700Bold,
   });
 
-  if (!fontsLoaded) {
+  const { userStoragedLoading } = useAuth();
+
+  if (!fontsLoaded || userStoragedLoading) {
     return <AppLoading />;
   } else {
     return (
-      <NavigationContainer>
-        <ThemeProvider theme={theme}>
-          <StatusBar style="light" backgroundColor={theme.colors.purple} />
-          <TabsRoutes />
-        </ThemeProvider>
-      </NavigationContainer>
+      <ThemeProvider theme={theme}>
+        <StatusBar style="light" backgroundColor={theme.colors.purple} />
+        <AuthProvider>
+          <Routes />
+        </AuthProvider>
+      </ThemeProvider>
     );
   }
 }

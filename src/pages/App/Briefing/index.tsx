@@ -15,6 +15,7 @@ import { fontScale } from "../../../utils";
 import { ptBR } from "date-fns/locale";
 import Loading from "../../../components/Loading";
 import { useFocusEffect } from "@react-navigation/core";
+import { useAuth } from "../../../hooks/auth";
 
 type TotalCategoryData = {
   color: string;
@@ -26,6 +27,7 @@ type TotalCategoryData = {
 
 const Briefing: React.FC = () => {
   const theme = useTheme();
+  const { user } = useAuth();
   const [totalCategoriesData, setTotalCategoriesData] = useState<
     TotalCategoryData[]
   >([]);
@@ -43,9 +45,10 @@ const Briefing: React.FC = () => {
   const loadTransactionsData = useCallback(async () => {
     setLoading(true);
     const response = await retrieveTransactionData();
-
+    console.log(response);
     const outcomeList = response?.filter(
       (item) =>
+        item.userId === user.id &&
         item.type === "outcome" &&
         new Date(item.date).getMonth() === selectedDate.getMonth() &&
         new Date(item.date).getFullYear() === selectedDate.getFullYear()

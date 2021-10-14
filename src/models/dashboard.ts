@@ -6,6 +6,7 @@ type Category = {
 
 export type ListItemData = {
   id: string;
+  userId: string;
   title: string;
   value: string;
   category: Category;
