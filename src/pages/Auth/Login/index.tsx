@@ -55,13 +55,11 @@ const Login: React.FC = () => {
             onPress={handleGoogleLogin}
           />
 
-          {/* {Platform.OS === "ios" && ( */}
-          <LoginButton
+          {/* <LoginButton
             svg={AppleIcon}
             title="Entrar com Apple"
             onPress={handleAppleLogin}
-          />
-          {/* )} */}
+          /> */}
         </Styled.ButtonsContainer>
         {isLoading && <Styled.Loading size={25} color={theme.colors.white} />}
       </Styled.OrangeWrapper>

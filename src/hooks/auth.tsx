@@ -45,7 +45,7 @@ type SignInWithGoogleResponse = {
 
 const AuthContext = createContext({} as AuthContextData);
 
-const AuthProvider = ({ children }: AuthProviderProps): ReactNode => {
+const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserData>({} as UserData);
   const [userStoragedLoading, setUserStoragedLoading] = useState(true);
 
@@ -79,29 +79,29 @@ const AuthProvider = ({ children }: AuthProviderProps): ReactNode => {
     }
   };
 
-  const signInWithApple = async (): Promise<void> => {
-    try {
-      const credentials = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-      if (credentials) {
-        const userLogged = {
-          id: String(credentials.user),
-          email: credentials.email,
-          name: credentials.fullName?.givenName!,
-          photo: `https://ui-avatars.com/api/?name=${credentials.fullName
-            ?.givenName!}&length=1`,
-        };
-        await saveUserData(userLogged);
-        setUser(userLogged);
-      }
-    } catch (err) {
-      throw new Error(err);
-    }
-  };
+  // const signInWithApple = async (): Promise<void> => {
+  //   try {
+  //     const credentials = await AppleAuthentication.signInAsync({
+  //       requestedScopes: [
+  //         AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+  //         AppleAuthentication.AppleAuthenticationScope.EMAIL,
+  //       ],
+  //     });
+  //     if (credentials) {
+  //       const userLogged = {
+  //         id: String(credentials.user),
+  //         email: credentials.email,
+  //         name: credentials.fullName?.givenName!,
+  //         photo: `https://ui-avatars.com/api/?name=${credentials.fullName
+  //           ?.givenName!}&length=1`,
+  //       };
+  //       await saveUserData(userLogged);
+  //       setUser(userLogged);
+  //     }
+  //   } catch (err) {
+  //     throw new Error(err);
+  //   }
+  // };
 
   const signOutUser = async (): Promise<void> => {
     try {
@@ -131,7 +131,7 @@ const AuthProvider = ({ children }: AuthProviderProps): ReactNode => {
       value={{
         user,
         signInWithGoogle,
-        signInWithApple,
+        //signInWithApple,
         signOutUser,
         userStoragedLoading,
       }}
